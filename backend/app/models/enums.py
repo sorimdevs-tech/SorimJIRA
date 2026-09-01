@@ -1,0 +1,50 @@
+from enum import Enum
+
+class Role(str, Enum):
+    ADMIN = "ADMIN"
+    SCRUM_MASTER = "SCRUM_MASTER"
+    PROJECT_OWNER = "PROJECT_OWNER"
+    CTO = "CTO"
+    VP = "VP"
+    MANAGER = "MANAGER"
+    DEVELOPER = "DEVELOPER"
+    TESTER = "TESTER"
+    TRAINEE = "TRAINEE"
+
+class TicketStatus(str, Enum):
+    TODO = "TODO"
+    IN_PROGRESS = "IN_PROGRESS"
+    IN_REVIEW = "IN_REVIEW"
+    TESTING = "TESTING"
+    COMPLETED = "COMPLETED"
+    CLOSED = "CLOSED"
+
+class Priority(str, Enum):
+    CRITICAL = "CRITICAL"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
+
+class ProjectStatus(str, Enum):
+    PLANNING = "PLANNING"
+    ACTIVE = "ACTIVE"
+    ON_HOLD = "ON_HOLD"
+    COMPLETED = "COMPLETED"
+    ARCHIVED = "ARCHIVED"
+
+class SprintStatus(str, Enum):
+    PLANNED = "PLANNED"
+    ACTIVE = "ACTIVE"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
+
+class NotificationType(str, Enum):
+    TICKET_ASSIGNED = "TICKET_ASSIGNED"
+    STATUS_CHANGED = "STATUS_CHANGED"
+    SPRINT_STARTED = "SPRINT_STARTED"
+    SPRINT_ENDED = "SPRINT_ENDED"
+    DEADLINE_REMINDER = "DEADLINE_REMINDER"
+    APPROVAL_REQUIRED = "APPROVAL_REQUIRED"
+    DEFECT_RAISED = "DEFECT_RAISED"
+    COMMENT_ADDED = "COMMENT_ADDED"
+    PROJECT_ADDED = "PROJECT_ADDED"

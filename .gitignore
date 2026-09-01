@@ -1,0 +1,33 @@
+# Node & Frontend
+node_modules/
+dist/
+.vite/
+*.timestamp-*.mjs
+npm-debug.log*
+
+# Python & Backend
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.pytest_cache/
+
+# Local Database & Storage
+backend/db/*.sqlite3
+backend/db/*.db
+*.sqlite3
+*.db
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  code, kbd, samp, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+}
+
+@layer components {
+  /* Cards */
+  .card {
+    @apply bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200;
+  }
+  .card-sm {
+    @apply bg-white border border-slate-200/80 rounded-xl p-3.5 hover:shadow-sm transition-all duration-200;
+  }
+  .metric-card {
+    @apply bg-white border border-slate-200/90 rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-sm hover:shadow transition-all duration-200 cursor-pointer border-0;
+  }
+  .btn-brand {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-orange-500 to-amber-600 text-white hover:from-orange-600 hover:to-amber-700 shadow-sm hover:shadow transition-all duration-200 cursor-pointer border-0;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 shadow-sm transition-all duration-200 cursor-pointer;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors cursor-pointer border-0 bg-transparent;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-all duration-200 cursor-pointer;
+  }
+
+  /* Tags & Badges */
+  .tag {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-tight whitespace-nowrap;
+  }
+  .tag-blue   { @apply bg-blue-50/80 text-blue-700 border border-blue-200/70; }
+  .tag-green  { @apply bg-emerald-50/80 text-emerald-700 border border-emerald-200/70; }
+  .tag-red    { @apply bg-rose-50/80 text-rose-700 border border-rose-200/70; }
+  .tag-amber  { @apply bg-amber-50/80 text-amber-700 border border-amber-200/70; }
+  .tag-purple { @apply bg-purple-50/80 text-purple-700 border border-purple-200/70; }
+  .tag-gray   { @apply bg-slate-100/80 text-slate-600 border border-slate-200/70; }
+  .tag-teal   { @apply bg-teal-50/80 text-teal-700 border border-teal-200/70; }
+  .tag-indigo { @apply bg-indigo-50/80 text-indigo-700 border border-indigo-200/70; }
+
+  /* Form Elements */
+  .field-label {
+    @apply block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5;
+  }
+  .field-input {
+    @apply w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-[13px] text-slate-900 bg-white placeholder-slate-400 outline-none transition-all focus:border-slate-900 focus:ring-4 focus:ring-slate-900/5;
+  }
+
+  /* Layout & Nav */
+  .nav-link {
+    @apply flex items-center gap-3 px-3.5 py-2.5 text-[13px] font-medium text-slate-400 hover:bg-slate-800/60 hover:text-slate-100 transition-all cursor-pointer rounded-xl mb-1;
+  }
+  .nav-link.active {
+    @apply bg-slate-800 text-white font-bold shadow-sm;
+  }
+  .page-container {
+    @apply px-6 lg:px-8 py-6 w-full;
+  }
+  .page-header {
+    @apply flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6;
+  }
+  .page-title {
+    @apply text-2xl font-extrabold text-slate-900 tracking-tight;
+  }
+  .section-title {
+    @apply text-sm font-bold text-slate-900 tracking-tight;
+  }
+  .avatar {
+    @apply rounded-xl flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm;
+  }
+
+  /* Kanban Elements */
+  .kanban-col {
+    @apply flex-shrink-0 w-64 bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3 flex flex-col gap-2.5 min-h-[420px];
+  }
+  .kanban-card {
+    @apply bg-white border border-slate-200/90 rounded-xl p-3.5 cursor-pointer hover:border-slate-400 hover:shadow-md transition-all relative;
+  }
+
+  /* Progress */
+  .progress-bar {
+    @apply h-2 bg-slate-100 rounded-full overflow-hidden;
+  }
+  .progress-fill {
+    @apply h-full rounded-full transition-all duration-500;
+  }
+
+  /* Modals */
+  .modal-overlay {
+    @apply fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-150;
+  }
+  .modal {
+    @apply bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-slate-100;
+  }
+  .modal-header {
+    @apply flex items-center justify-between p-5 border-b border-slate-100;
+  }
+  .modal-body {
+    @apply p-6;
+  }
+  .modal-footer {
+    @apply flex items-center justify-end gap-3 p-4 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl;
+  }
+}
+
+/* Priority dot colors */
+.priority-CRITICAL { background: #EF4444; }
+.priority-HIGH     { background: #F59E0B; }
+.priority-MEDIUM   { background: #3B82F6; }
+.priority-LOW      { background: #94A3B8; }
+
+/* Loading spinner */
+.spinner {
+  width: 22px; height: 22px;
+  border: 2.5px solid #E2E8F0;
+  border-top-color: #0F172A;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Print Styles */
+@media print {
+  body { background: white !important; }
+  .no-print, .no-print * { display: none !important; }
+  body * { visibility: hidden; }
+  .pdf-print-area, .pdf-print-area * { visibility: visible; }
+  .pdf-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0 !important;
+    padding: 20px !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
