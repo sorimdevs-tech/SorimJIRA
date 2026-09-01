@@ -1,7 +1,8 @@
 import os
 import random
+import logging
 from typing import Dict, Optional, List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -13,11 +14,14 @@ from app.core.email import email_service
 from app.core.websocket import ws_manager
 from app.services.ticket_service import map_user
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/admin", tags=["Admin Operations"])
 
 @router.post("/add-employee", response_model=ApiResponse[UserResponse])
 def add_employee(
     req: AddEmployeeRequest,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("ADMIN"))
 ):
@@ -86,7 +90,8 @@ def add_employee(
     db.commit()
     db.refresh(employee)
 
-    login_url = f"{settings.FRONTEND_URL}/login"
+    base = str(request.base_url).rstrip("/")
+    login_url = f"{base}/login" if base and "localhost" not in base else f"{settings.FRONTEND_URL}/login"
 
     # Welcome email
     subject = "Welcome to IntelliSprint - Your Login Credentials"
@@ -137,8 +142,8 @@ def add_employee(
 
     try:
         email_service.send_email(email, current_user.email, subject, text_body, html_body)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"Error dispatching welcome email: {e}")
 
     # Notify all other registered users
     try:

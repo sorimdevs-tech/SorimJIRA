@@ -53,12 +53,10 @@ class EmailService:
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["To"] = to
+            msg["From"] = formataddr(("IntelliSprint Platform", user_name))
             
             if sender_email and sender_email.strip():
-                msg["From"] = formataddr((sender_email.strip(), user_name))
                 msg["Reply-To"] = sender_email.strip()
-            else:
-                msg["From"] = formataddr(("IntelliSprint System", user_name))
 
             msg.attach(MIMEText(text, "plain", "utf-8"))
             if html:
