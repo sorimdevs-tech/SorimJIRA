@@ -235,37 +235,37 @@ def delete_employee(
                 detail="Cannot delete the last remaining administrator account in the system."
             )
 
-    # 1. Remove from projects
-    projects = db.query(Project).all()
-    for p in projects:
-        if employee in p.members:
+    emp_email = employee.email
+    emp_name = employee.full_name
+
+    try:
+        # 1. Nullify ticket references
+        db.query(Ticket).filter(Ticket.assignee_id == id).update({"assignee_id": None}, synchronize_session=False)
+        db.query(Ticket).filter(Ticket.assigner_id == id).update({"assigner_id": None}, synchronize_session=False)
+        db.query(Ticket).filter(Ticket.reporter_id == id).update({"reporter_id": None}, synchronize_session=False)
+
+        # 2. Nullify owned project references
+        db.query(Project).filter(Project.owner_id == id).update({"owner_id": None}, synchronize_session=False)
+
+        # 3. Remove from project memberships
+        for p in employee.projects:
             p.members.remove(employee)
-        if p.owner_id == employee.id:
-            p.owner_id = None
 
-    # 2. Nullify tickets references
-    tickets = db.query(Ticket).all()
-    for t in tickets:
-        if t.assignee_id == employee.id:
-            t.assignee_id = None
-        if t.assigner_id == employee.id:
-            t.assigner_id = None
-        if t.reporter_id == employee.id:
-            t.reporter_id = None
+        # 4. Delete user (SQLAlchemy cascades delete comments, attachments, notifications)
+        db.delete(employee)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to delete employee ID {id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete employee: {str(e)}")
 
-    # 3. Delete comments
-    db.query(Comment).filter(Comment.author_id == employee.id).delete()
-
-    # 4. Delete notifications
-    db.query(Notification).filter(Notification.recipient_id == employee.id).delete()
-
-    # Deactivation email
+    # Deactivation email (async/safe)
     try:
         email_service.send_system_email(
-            employee.email,
+            emp_email,
             "IntelliSprint Account Deactivation",
             (
-                f"Hello {employee.full_name},\n\n"
+                f"Hello {emp_name},\n\n"
                 "This is to inform you that your IntelliSprint account has been removed/deleted by the System Administrator.\n\n"
                 "You will no longer be able to log in or access your dashboard.\n\n"
                 "Best regards,\nSorim Team"
@@ -274,26 +274,11 @@ def delete_employee(
     except Exception:
         pass
 
-    db.delete(employee)
-    db.commit()
-
-    # Notify other users
     try:
-        all_users = db.query(User).all()
-        for u in all_users:
-            email_service.send_system_email(
-                u.email,
-                "User Profile Removed",
-                (
-                    f"Hello {u.full_name},\n\n"
-                    f"This is to notify you that the user account for {employee.full_name} has been removed/deleted from the system by the administrator.\n\n"
-                    "Best regards,\nSorim Team"
-                )
-            )
+        ws_manager.broadcast_sync(
+            f'{{"type": "USER_REGISTERED", "user": "{emp_email}", "action": "DELETED"}}'
+        )
     except Exception:
         pass
 
-    ws_manager.broadcast_sync(
-        f'{{"type": "USER_REGISTERED", "user": "{employee.email}", "action": "DELETED"}}'
-    )
     return ApiResponse.ok(message="Employee deleted successfully")

@@ -1,3 +1,4 @@
+import os
 import smtplib
 import logging
 from email.mime.text import MIMEText
@@ -10,19 +11,25 @@ logger = logging.getLogger(__name__)
 class EmailService:
     @property
     def host(self) -> str:
-        return settings.SMTP_HOST
+        return os.environ.get("SMTP_HOST") or settings.SMTP_HOST or "smtp.gmail.com"
 
     @property
     def port(self) -> int:
-        return settings.SMTP_PORT
+        val = os.environ.get("SMTP_PORT") or settings.SMTP_PORT or 587
+        try:
+            return int(val)
+        except Exception:
+            return 587
 
     @property
     def username(self) -> str:
-        return settings.MAIL_USERNAME
+        u = os.environ.get("MAIL_USERNAME") or settings.MAIL_USERNAME or ""
+        return u.strip()
 
     @property
     def password(self) -> str:
-        return settings.MAIL_PASSWORD
+        p = os.environ.get("MAIL_PASSWORD") or settings.MAIL_PASSWORD or ""
+        return p.replace(" ", "").strip()
 
     def send_email(self, to: str, sender_email: str = None, subject: str = "", text: str = "", html: str = None):
         """
@@ -32,13 +39,13 @@ class EmailService:
         pass_word = self.password
 
         if not user_name or not pass_word:
-            logger.info(
-                f"\n========== [SMTP DISPATCH (MOCK MODE)] ==========\n"
+            logger.warning(
+                f"\n========== [SMTP DISPATCH (MOCK MODE - NO CREDENTIALS)] ==========\n"
                 f"To: {to}\n"
                 f"From: {sender_email or 'Sorim System'} ({user_name or 'unconfigured'})\n"
                 f"Subject: {subject}\n"
                 f"Body:\n{text}\n"
-                f"==================================================\n"
+                f"===================================================================\n"
             )
             return
 
@@ -57,13 +64,13 @@ class EmailService:
             if html:
                 msg.attach(MIMEText(html, "html", "utf-8"))
 
-            with smtplib.SMTP(self.host, self.port) as server:
+            with smtplib.SMTP(self.host, self.port, timeout=15) as server:
                 server.starttls()
                 server.login(user_name, pass_word)
                 server.sendmail(user_name, [to], msg.as_string())
-            logger.info(f"Email sent successfully to {to} via SMTP (Subject: {subject})")
+            logger.info(f"✅ Email sent successfully to {to} via SMTP (Subject: {subject})")
         except Exception as e:
-            logger.error(f"Failed to send email to {to} via SMTP: {e}")
+            logger.error(f"❌ Failed to send email to {to} via SMTP: {e}")
 
     def send_system_email(self, to: str, subject: str = "", text: str = "", html: str = None):
         """
@@ -73,12 +80,12 @@ class EmailService:
         pass_word = self.password
 
         if not user_name or not pass_word:
-            logger.info(
-                f"\n====== [SYSTEM SMTP DISPATCH (MOCK MODE)] ======\n"
+            logger.warning(
+                f"\n====== [SYSTEM SMTP DISPATCH (MOCK MODE - NO CREDENTIALS)] ======\n"
                 f"To: {to}\n"
                 f"Subject: {subject}\n"
                 f"Body:\n{text}\n"
-                f"================================================\n"
+                f"=================================================================\n"
             )
             return
 
@@ -92,12 +99,12 @@ class EmailService:
             if html:
                 msg.attach(MIMEText(html, "html", "utf-8"))
 
-            with smtplib.SMTP(self.host, self.port) as server:
+            with smtplib.SMTP(self.host, self.port, timeout=15) as server:
                 server.starttls()
                 server.login(user_name, pass_word)
                 server.sendmail(user_name, [to], msg.as_string())
-            logger.info(f"System email sent successfully to {to} via SMTP (Subject: {subject})")
+            logger.info(f"✅ System email sent successfully to {to} via SMTP (Subject: {subject})")
         except Exception as e:
-            logger.error(f"Failed to send system email to {to} via SMTP: {e}")
+            logger.error(f"❌ Failed to send system email to {to} via SMTP: {e}")
 
 email_service = EmailService()
