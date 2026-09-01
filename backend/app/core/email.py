@@ -3,7 +3,7 @@ import smtplib
 import logging
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.utils import formataddr
+from email.utils import formataddr, formatdate, make_msgid
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -51,6 +51,8 @@ class EmailService:
 
         try:
             msg = MIMEMultipart("alternative")
+            msg["Date"] = formatdate(localtime=True)
+            msg["Message-ID"] = make_msgid(domain="gmail.com")
             msg["Subject"] = subject
             msg["To"] = to
             msg["From"] = formataddr(("IntelliSprint Platform", user_name))
@@ -89,6 +91,8 @@ class EmailService:
 
         try:
             msg = MIMEMultipart("alternative")
+            msg["Date"] = formatdate(localtime=True)
+            msg["Message-ID"] = make_msgid(domain="gmail.com")
             msg["Subject"] = subject
             msg["To"] = to
             msg["From"] = formataddr(("IntelliSprint System", user_name))
