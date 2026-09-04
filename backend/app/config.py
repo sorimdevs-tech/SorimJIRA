@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     AI_MOCK: bool = False
     GROQ_API_KEY: str = ""
 
+    # DataStax Astra DB (NoSQL Big Data & Activity Tracking)
+    ASTRA_DB_API_ENDPOINT: str = ""
+    ASTRA_DB_APPLICATION_TOKEN: str = ""
+    ASTRA_DB_KEYSPACE: str = "default_keyspace"
+    ASTRA_DB_ID: str = ""
+
     @property
     def cors_origins(self) -> List[str]:
         if not self.ALLOWED_ORIGINS:
@@ -48,7 +54,11 @@ class Settings(BaseSettings):
     @property
     def db_url(self) -> str:
         if self.DATABASE_URL:
-            return self.DATABASE_URL
+            url = self.DATABASE_URL.strip()
+            # Render and Heroku often provide postgres:// which SQLAlchemy requires as postgresql://
+            if url.startswith("postgres://"):
+                url = url.replace("postgres://", "postgresql://", 1)
+            return url
         if self.DB_HOST and self.DB_USERNAME:
             return f"mysql+pymysql://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?charset=utf8mb4"
         # Default SQLite

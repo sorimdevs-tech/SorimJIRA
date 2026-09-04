@@ -10,6 +10,7 @@ from fastapi.openapi.docs import get_swagger_ui_html
 
 from app.config import settings
 from app.database import engine, SessionLocal, Base
+import app.models  # Ensure all models are registered with Base.metadata
 from app.core.seeder import seed_database
 from app.core.websocket import ws_manager
 from app.schemas.common import ApiResponse
