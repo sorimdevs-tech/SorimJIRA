@@ -24,11 +24,15 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:3000"
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173,https://jira-tool-1.onrender.com,http://127.0.0.1:3000,http://127.0.0.1:5173"
 
-    # Mail
+    # Mail (SMTP or HTTP API for Render/Cloud)
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
     MAIL_USERNAME: str = ""
     MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = ""
+    RESEND_API_KEY: str = ""
+    BREVO_API_KEY: str = ""
+    SENDGRID_API_KEY: str = ""
 
     # AI
     AI_ENABLED: bool = True

@@ -130,7 +130,17 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     if not verify_password(req.password, user.password):
         raise HTTPException(status_code=400, detail="Invalid email or password")
 
-    # Check if first login MFA verification is needed
+    # If user was provisioned by admin with temporary password and has not changed password yet:
+    if not user.password_changed:
+        user.first_login_verified = True
+        user.active = True
+        db.commit()
+        return ApiResponse.ok(
+            data=build_auth_response(user, db),
+            message="Temporary password verified. Please set your new password."
+        )
+
+    # Check if MFA verification is needed
     if not req.mfaCode or not req.mfaCode.strip():
         if user.first_login_verified:
             user.active = True
@@ -142,10 +152,12 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
             )
             return ApiResponse.ok(data=build_auth_response(user, db), message="Logged in successfully")
 
-        # Generate 6-digit code
+        # Generate 6-digit MFA code
         code = str(random.randint(100000, 999999))
         user.temp_mfa_code = code
         db.commit()
+
+        logger.info(f"\n=======================================================\n🔑 [SECURITY MFA CODE] Verification Code for {user.email}: {code}\n=======================================================\n")
 
         try:
             email_service.send_system_email(
@@ -156,11 +168,14 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         except Exception:
             pass
 
+        # If HTTP email provider is not yet configured, return mfaCode in payload for helper banner fallback
+        fallback_code = code if not (email_service.resend_api_key or email_service.brevo_api_key or email_service.sendgrid_api_key) else None
+
         return ApiResponse.ok(
             data=AuthResponse(
                 mfaRequired=True,
                 passwordChanged=bool(user.password_changed),
-                mfaCode=None
+                mfaCode=fallback_code
             ),
             message="Verification code sent to email"
         )
@@ -326,6 +341,8 @@ def change_password(req: ChangePasswordRequest, db: Session = Depends(get_db)):
 
     user.password = get_password_hash(req.newPassword)
     user.password_changed = True
+    user.first_login_verified = True
+    user.active = True
     db.commit()
 
     admins = db.query(User).filter(User.role == Role.ADMIN).all()
