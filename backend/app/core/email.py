@@ -244,13 +244,13 @@ class EmailService:
             
         to = to.strip().lower()
 
-        # 1. Check HTTP API Providers (Resend / Brevo / SendGrid)
+        # 1. Check HTTP API Providers (Brevo / Resend / SendGrid)
         # HTTP REST APIs work on port 443 (HTTPS) which is NEVER blocked by Render / cloud providers
-        if self.resend_api_key:
-            return self._send_via_resend(to, sender_email, subject, text, html)
-
         if self.brevo_api_key:
             return self._send_via_brevo(to, sender_email, subject, text, html)
+
+        if self.resend_api_key:
+            return self._send_via_resend(to, sender_email, subject, text, html)
 
         if self.sendgrid_api_key:
             return self._send_via_sendgrid(to, sender_email, subject, text, html)
