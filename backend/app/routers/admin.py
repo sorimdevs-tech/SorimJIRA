@@ -141,28 +141,26 @@ def add_employee(
     )
 
     try:
+        # Send credentials email to the new employee
         email_service.send_email(email, current_user.email, subject, text_body, html_body)
-    except Exception as e:
-        logger.error(f"Error dispatching welcome email: {e}")
 
-    # Notify all other registered users
-    try:
-        all_users = db.query(User).all()
-        for u in all_users:
-            if u.id == employee.id:
-                continue
-            email_service.send_email(
-                u.email,
-                current_user.email,
-                f"New Member Registered: {employee.full_name}",
-                (
-                    f"Hello {u.full_name},\n\n"
-                    f"A new member, {employee.full_name} ({employee.role.value.replace('_', ' ')}), has been registered in the system by the administrator.\n\n"
-                    "Best regards,\nIntelliSprint Team"
-                )
+        # Also send a copy of the credentials to the admin for record keeping (if different email)
+        if current_user.email and current_user.email.strip().lower() != email.strip().lower():
+            admin_subject = f"[Admin Copy] Credentials Provisioned for {name}"
+            admin_text_body = (
+                f"Hello Administrator,\n\n"
+                f"You have successfully provisioned a new user account for {name}.\n\n"
+                f"Here are the account credentials:\n"
+                f"Username / Email: {email}\n"
+                f"Temporary Password: {temp_password}\n"
+                f"Role: {role.value}\n"
+                f"Department: {req.department or 'General'}\n"
+                f"Login URL: {login_url}\n\n"
+                f"Best regards,\nIntelliSprint System"
             )
-    except Exception:
-        pass
+            email_service.send_email(current_user.email, None, admin_subject, admin_text_body, html_body)
+    except Exception as e:
+        logger.error(f"Error dispatching welcome credentials email: {e}")
 
     ws_manager.broadcast_sync(
         f'{{"type": "USER_REGISTERED", "user": "{email}", "role": "{role.value}"}}'
